@@ -97,7 +97,7 @@ begin
             .TitleColor(clWhite)
             .Message('MYou can access and use theme colors throughout your components. For example, you might want to use colors defined in the theme for different parts of your app.')
             .MessageColor(clSilver)
-            .Rounding(16)
+            .Rounding(38)
             .BackgroundColor(clBlack)
             .BorderColor(clGray)
             .FontName('Google Sans')

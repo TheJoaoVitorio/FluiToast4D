@@ -45,7 +45,7 @@ type
     property DefaultType: TFluiToastType read FType write FType default ftCustom;
     property DefaultPosition: TFluiToastPosition read FPosition write FPosition default ftpBottomRight;
     property DefaultDuration: Integer read FDuration write FDuration default 3000;
-    property DefaultRounding: Integer read FRounding write FRounding default 25;
+    property DefaultRounding: Integer read FRounding write FRounding default 38;
     property DefaultBackgroundColor: TColor read FBackgroundColor write FBackgroundColor default clWhite;
     property DefaultTitleColor: TColor read FTitleColor write FTitleColor default COLOR_TEXT_TITLE;
     property DefaultMessageColor: TColor read FMessageColor write FMessageColor default COLOR_TEXT_MESSAGE;
@@ -63,7 +63,7 @@ begin
   FType := ftCustom;
   FPosition := ftpBottomRight;
   FDuration := 3000;
-  FRounding := 25;
+  FRounding := 38;
   FBackgroundColor := clWhite;
   FTitleColor := COLOR_TEXT_TITLE;
   FMessageColor := COLOR_TEXT_MESSAGE;

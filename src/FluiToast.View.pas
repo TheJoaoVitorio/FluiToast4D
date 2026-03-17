@@ -60,7 +60,7 @@ begin
   Height := 75;
   DoubleBuffered := True;
   FDuration := 3000;
-  FRounding := 12;
+  FRounding := 38;
   FFontName := 'Segoe UI';
   FAlpha := 255;
   
