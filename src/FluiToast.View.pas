@@ -1,4 +1,4 @@
-﻿unit FluiToast.View;
+unit FluiToast.View;
 
 interface
 
@@ -48,6 +48,9 @@ type
 
 implementation
 
+uses
+  Winapi.GDIPOBJ, Winapi.GDIPAPI;
+
 { TFluiToastView }
 
 constructor TFluiToastView.Create(AOwner: TComponent);
@@ -94,18 +97,66 @@ end;
 procedure TFluiToastView.Paint;
 var
   LRect: TRect;
+  LGraphics: TGPGraphics;
+  LPath: TGPGraphicsPath;
+  LBrush: TGPSolidBrush;
+  LPen: TGPPen;
+  LRound: Single;
+
+  function GetTGPColor(AColor: TColor; AAlpha: Byte = 255): TGPColor;
+  var
+    LColor: COLORREF;
+  begin
+    LColor := ColorToRGB(AColor);
+    Result := MakeColor(AAlpha, GetRValue(LColor), GetGValue(LColor), GetBValue(LColor));
+  end;
+
 begin
-  // Manual Curvy drawing on the control canvas
-  Canvas.Brush.Color := FBackgroundColor;
-  Canvas.Pen.Color := FBorderColor;
-  Canvas.Pen.Width := 1;
-  Canvas.RoundRect(0, 0, Width, Height, FRounding, FRounding);
+  LGraphics := TGPGraphics.Create(Canvas.Handle);
+  try
+    LGraphics.SetSmoothingMode(SmoothingModeAntiAlias);
+
+    LRound := FRounding;
+    if LRound > Height then LRound := Height;
+    if LRound > Width then LRound := Width;
+
+    LPath := TGPGraphicsPath.Create;
+    try
+      // Arcs for rounded corners
+      LPath.AddArc(0.5, 0.5, LRound, LRound, 180, 90); // Top-left
+      LPath.AddArc(Width - LRound - 0.5, 0.5, LRound, LRound, 270, 90); // Top-right
+      LPath.AddArc(Width - LRound - 0.5, Height - LRound - 0.5, LRound, LRound, 0, 90); // Bottom-right
+      LPath.AddArc(0.5, Height - LRound - 0.5, LRound, LRound, 90, 90); // Bottom-left
+      LPath.CloseFigure;
+
+      // Fill Background
+      LBrush := TGPSolidBrush.Create(GetTGPColor(FBackgroundColor, FAlpha));
+      try
+        LGraphics.FillPath(LBrush, LPath);
+      finally
+        LBrush.Free;
+      end;
+
+      // Draw Border
+      LPen := TGPPen.Create(GetTGPColor(FBorderColor, FAlpha), 1);
+      try
+        LGraphics.DrawPath(LPen, LPath);
+      finally
+        LPen.Free;
+      end;
+    finally
+      LPath.Free;
+    end;
+  finally
+    LGraphics.Free;
+  end;
 
   // Title
   Canvas.Font.Name := FFontName;
   Canvas.Font.Size := 10;
   Canvas.Font.Style := [fsBold];
   Canvas.Font.Color := FTitleColor;
+  Canvas.Brush.Style := bsClear;
   
   LRect := ClientRect;
   LRect.Inflate(-16, -12);
@@ -117,6 +168,7 @@ begin
     Canvas.Font.Style := [];
     Canvas.Font.Size := 9;
     Canvas.Font.Color := FMessageColor;
+    Canvas.Brush.Style := bsClear;
     LRect.Top := LRect.Top + 22;
     Canvas.TextRect(LRect, FMessage, [tfLeft, tfTop, tfWordBreak]);
   end;
