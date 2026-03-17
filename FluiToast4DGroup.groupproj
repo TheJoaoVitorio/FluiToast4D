@@ -1,0 +1,36 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{69FBACF5-CE9F-4414-B559-A1C9448A5199}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="FluiToast4DProject.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="FluiToast4DProject">
+        <MSBuild Projects="FluiToast4DProject.dproj"/>
+    </Target>
+    <Target Name="FluiToast4DProject:Clean">
+        <MSBuild Projects="FluiToast4DProject.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="FluiToast4DProject:Make">
+        <MSBuild Projects="FluiToast4DProject.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="FluiToast4DProject"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="FluiToast4DProject:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="FluiToast4DProject:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

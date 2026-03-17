@@ -1,0 +1,158 @@
+unit FluiToast;
+
+interface
+
+uses
+  System.Classes, Vcl.Graphics, FluiToast.Types, FluiToast.View, FluiToast.Manager;
+
+type
+  [ComponentPlatformsAttribute(pidWin32 or pidWin64)]
+  TFluiToast = class(TComponent, IFluiToast)
+  private
+    FTitle: string;
+    FMessage: string;
+    FType: TFluiToastType;
+    FPosition: TFluiToastPosition;
+    FDuration: Integer;
+    FOnClick: TFluiToastAction;
+    FRounding: Integer;
+    FBackgroundColor: TColor;
+    FTitleColor: TColor;
+    FFontName: string;
+  protected
+    // IFluiToast implementation
+    function Title(const AValue: string): IFluiToast;
+    function Message(const AValue: string): IFluiToast;
+    function ToastType(const AValue: TFluiToastType): IFluiToast;
+    function Position(const AValue: TFluiToastPosition): IFluiToast;
+    function Duration(const AValue: Integer): IFluiToast;
+    function OnClick(const AValue: TFluiToastAction): IFluiToast;
+    function BackgroundColor(const AValue: TColor): IFluiToast;
+    function TitleColor(const AValue: TColor): IFluiToast;
+    function Rounding(const AValue: Integer): IFluiToast;
+    procedure Show;
+  public
+    constructor Create(AOwner: TComponent); override;
+    class function New: IFluiToast;
+    class procedure ShowToast(const ATitle, AMessage: string; AType: TFluiToastType = ftDefault);
+  published
+    property DefaultTitle: string read FTitle write FTitle;
+    property DefaultMessage: string read FMessage write FMessage;
+    property DefaultType: TFluiToastType read FType write FType default ftCustom;
+    property DefaultPosition: TFluiToastPosition read FPosition write FPosition default ftpBottomRight;
+    property DefaultDuration: Integer read FDuration write FDuration default 3000;
+    property DefaultRounding: Integer read FRounding write FRounding default 12;
+    property DefaultBackgroundColor: TColor read FBackgroundColor write FBackgroundColor default clWhite;
+    property DefaultTitleColor: TColor read FTitleColor write FTitleColor default COLOR_TEXT_TITLE;
+    property FontName: string read FFontName write FFontName;
+  end;
+
+implementation
+
+{ TFluiToast }
+
+constructor TFluiToast.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FType := ftCustom;
+  FPosition := ftpBottomRight;
+  FDuration := 3000;
+  FRounding := 12;
+  FBackgroundColor := clWhite;
+  FTitleColor := COLOR_TEXT_TITLE;
+  FFontName := 'Segoe UI';
+end;
+
+function TFluiToast.BackgroundColor(const AValue: TColor): IFluiToast;
+begin
+  FBackgroundColor := AValue;
+  FType := ftCustom; // Se o usuário setar cor manualmente, vira Custom
+  Result := Self;
+end;
+
+function TFluiToast.Duration(const AValue: Integer): IFluiToast;
+begin
+  FDuration := AValue;
+  Result := Self;
+end;
+
+function TFluiToast.Message(const AValue: string): IFluiToast;
+begin
+  FMessage := AValue;
+  Result := Self;
+end;
+
+class function TFluiToast.New: IFluiToast;
+begin
+  Result := TFluiToast.Create(nil);
+end;
+
+function TFluiToast.OnClick(const AValue: TFluiToastAction): IFluiToast;
+begin
+  FOnClick := AValue;
+  Result := Self;
+end;
+
+function TFluiToast.Position(const AValue: TFluiToastPosition): IFluiToast;
+begin
+  FPosition := AValue;
+  Result := Self;
+end;
+
+function TFluiToast.Rounding(const AValue: Integer): IFluiToast;
+begin
+  FRounding := AValue;
+  FType := ftCustom;
+  Result := Self;
+end;
+
+procedure TFluiToast.Show;
+var
+  LView: TFluiToastView;
+begin
+  LView := TFluiToastView.Create(nil);
+  LView.Title := FTitle;
+  LView.Message := FMessage;
+  LView.ToastType := FType;
+  LView.Duration := FDuration;
+  LView.OnToastClick := FOnClick;
+  LView.Rounding := FRounding;
+  
+  // No caso de Custom, aplicamos as cores do componente
+  LView.BackgroundColor := FBackgroundColor;
+  LView.TitleColor := FTitleColor;
+  LView.BorderColor := COLOR_BORDER_DEFAULT; // Borda padrão para custom
+  LView.FontName := FFontName;
+  
+  TFluiToastManager.GetInstance.ShowToast(LView, FPosition);
+end;
+
+class procedure TFluiToast.ShowToast(const ATitle, AMessage: string; AType: TFluiToastType);
+begin
+  TFluiToast.New
+    .Title(ATitle)
+    .Message(AMessage)
+    .ToastType(AType)
+    .Show;
+end;
+
+function TFluiToast.Title(const AValue: string): IFluiToast;
+begin
+  FTitle := AValue;
+  Result := Self;
+end;
+
+function TFluiToast.TitleColor(const AValue: TColor): IFluiToast;
+begin
+  FTitleColor := AValue;
+  FType := ftCustom;
+  Result := Self;
+end;
+
+function TFluiToast.ToastType(const AValue: TFluiToastType): IFluiToast;
+begin
+  FType := AValue;
+  Result := Self;
+end;
+
+end.

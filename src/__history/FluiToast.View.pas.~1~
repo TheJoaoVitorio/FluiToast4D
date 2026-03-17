@@ -1,0 +1,171 @@
+unit FluiToast.View;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.ExtCtrls, FluiToast.Types;
+
+type
+  TFluiToastView = class(TCustomControl)
+  private
+    FOnClose: TNotifyEvent;
+    FTitle: string;
+    FMessage: string;
+    FType: TFluiToastType;
+    FDuration: Integer;
+    FOnClick: TFluiToastAction;
+    FTimer: TTimer;
+    FBackgroundColor: TColor;
+    FTitleColor: TColor;
+    FMessageColor: TColor;
+    FBorderColor: TColor;
+    FRounding: Integer;
+    FFontName: string;
+    FAlpha: Byte;
+    procedure OnTimer(Sender: TObject);
+    procedure DoClose;
+    procedure ApplyTheme;
+  protected
+    procedure Paint; override;
+    procedure Click; override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    procedure ShowToast;
+    property OnClose: TNotifyEvent read FOnClose write FOnClose;
+    property Title: string read FTitle write FTitle;
+    property Message: string read FMessage write FMessage;
+    property ToastType: TFluiToastType read FType write FType;
+    property Duration: Integer read FDuration write FDuration;
+    property OnToastClick: TFluiToastAction read FOnClick write FOnClick;
+    property BackgroundColor: TColor read FBackgroundColor write FBackgroundColor;
+    property TitleColor: TColor read FTitleColor write FTitleColor;
+    property MessageColor: TColor read FMessageColor write FMessageColor;
+    property BorderColor: TColor read FBorderColor write FBorderColor;
+    property Rounding: Integer read FRounding write FRounding;
+    property FontName: string read FFontName write FFontName;
+  end;
+
+implementation
+
+{ TFluiToastView }
+
+constructor TFluiToastView.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  Width := 340;
+  Height := 75;
+  DoubleBuffered := True;
+  FDuration := 3000;
+  FRounding := 12;
+  FFontName := 'Segoe UI';
+  FAlpha := 255; // Como é controle interno, não usamos AlphaBlendValue da janela
+  
+  FBackgroundColor := clWhite;
+  FTitleColor := COLOR_TEXT_TITLE;
+  FMessageColor := COLOR_TEXT_MESSAGE;
+  FBorderColor := COLOR_BORDER_DEFAULT;
+  
+  FTimer := TTimer.Create(Self);
+  FTimer.Enabled := False;
+  FTimer.OnTimer := OnTimer;
+end;
+
+procedure TFluiToastView.Click;
+begin
+  inherited;
+  if Assigned(FOnClick) then
+    FOnClick();
+  DoClose;
+end;
+
+procedure TFluiToastView.DoClose;
+begin
+  if Assigned(FOnClose) then
+    FOnClose(Self);
+  Free;
+end;
+
+procedure TFluiToastView.OnTimer(Sender: TObject);
+begin
+  DoClose;
+end;
+
+procedure TFluiToastView.Paint;
+var
+  LRect: TRect;
+begin
+  // Desenho Curvy manual no Canvas do controle
+  Canvas.Brush.Color := FBackgroundColor;
+  Canvas.Pen.Color := FBorderColor;
+  Canvas.Pen.Width := 1;
+  Canvas.RoundRect(0, 0, Width, Height, FRounding, FRounding);
+
+  // Título
+  Canvas.Font.Name := FFontName;
+  Canvas.Font.Size := 10;
+  Canvas.Font.Style := [fsBold];
+  Canvas.Font.Color := FTitleColor;
+  
+  LRect := ClientRect;
+  LRect.Inflate(-16, -12);
+  Canvas.TextRect(LRect, FTitle, [tfLeft, tfTop, tfSingleLine, tfEndEllipsis]);
+  
+  // Mensagem
+  if FMessage <> '' then
+  begin
+    Canvas.Font.Style := [];
+    Canvas.Font.Size := 9;
+    Canvas.Font.Color := FMessageColor;
+    LRect.Top := LRect.Top + 22;
+    Canvas.TextRect(LRect, FMessage, [tfLeft, tfTop, tfWordBreak]);
+  end;
+end;
+
+procedure TFluiToastView.ShowToast;
+begin
+  ApplyTheme;
+  Visible := True;
+  BringToFront;
+  FTimer.Interval := FDuration;
+  FTimer.Enabled := True;
+end;
+
+procedure TFluiToastView.ApplyTheme;
+begin
+  if FType <> ftCustom then
+  begin
+    case FType of
+      ftSuccess:
+      begin
+        FBackgroundColor := COLOR_SUCCESS_BG;
+        FBorderColor := COLOR_SUCCESS_BORDER;
+        FTitleColor := COLOR_SUCCESS_TEXT;
+        FMessageColor := COLOR_SUCCESS_TEXT;
+      end;
+      ftError:
+      begin
+        FBackgroundColor := COLOR_ERROR_BG;
+        FBorderColor := COLOR_ERROR_BORDER;
+        FTitleColor := COLOR_ERROR_TEXT;
+        FMessageColor := COLOR_ERROR_TEXT;
+      end;
+      ftWarning:
+      begin
+        FBackgroundColor := COLOR_WARNING_BG;
+        FBorderColor := COLOR_WARNING_BORDER;
+        FTitleColor := COLOR_WARNING_TEXT;
+        FMessageColor := COLOR_WARNING_TEXT;
+      end;
+      ftInfo:
+      begin
+        FBackgroundColor := COLOR_INFO_BG;
+        FBorderColor := COLOR_INFO_BORDER;
+        FTitleColor := COLOR_INFO_TEXT;
+        FMessageColor := COLOR_INFO_TEXT;
+      end;
+    end;
+  end;
+end;
+
+end.

@@ -1,0 +1,65 @@
+unit FluiToast.Types;
+
+interface
+
+uses
+  System.UITypes, System.Classes, Vcl.Graphics;
+
+type
+  TFluiToastType = (ftCustom, ftInfo, ftSuccess, ftWarning, ftError);
+
+  TFluiToastPosition = (ftpTopRight, ftpTopLeft, ftpBottomRight, ftpBottomLeft, ftpTopCenter, ftpBottomCenter);
+
+  TFluiToastAction = reference to procedure;
+
+  TFluiToastTheme = record
+    BackgroundColor: TColor;
+    TitleColor: TColor;
+    MessageColor: TColor;
+    BorderColor: TColor;
+    Rounding: Integer;
+  end;
+
+  IFluiToast = interface
+    ['{7D8B5C2A-1E3F-4B9D-9A12-8C4E5D6F7F8E}']
+    function Title(const AValue: string): IFluiToast;
+    function Message(const AValue: string): IFluiToast;
+    function ToastType(const AValue: TFluiToastType): IFluiToast;
+    function Position(const AValue: TFluiToastPosition): IFluiToast;
+    function Duration(const AValue: Integer): IFluiToast;
+    function OnClick(const AValue: TFluiToastAction): IFluiToast;
+    function BackgroundColor(const AValue: TColor): IFluiToast;
+    function TitleColor(const AValue: TColor): IFluiToast;
+    function MessageColor(const AValue: TColor): IFluiToast;
+    function BorderColor(const AValue: TColor): IFluiToast;
+    function FontName(const AValue: string): IFluiToast;
+    function Rounding(const AValue: Integer): IFluiToast;
+    function Clone: IFluiToast;
+    procedure Show;
+  end;
+
+const
+  COLOR_BACKGROUND_DEFAULT = $FFFFFF;
+  COLOR_TEXT_TITLE = $0F172A;
+  COLOR_TEXT_MESSAGE = $64748B;
+  COLOR_BORDER_DEFAULT = $E2E8F0;
+
+  COLOR_SUCCESS_BG = $004C6203;
+  COLOR_SUCCESS_BORDER = $00485C06;
+  COLOR_SUCCESS_TEXT = clWhite;
+
+  COLOR_ERROR_BG = $003232FF;
+  COLOR_ERROR_BORDER = $FEE2E2;
+  COLOR_ERROR_TEXT = $00C7CCD3;
+
+  COLOR_WARNING_BG = $002AFBE1;
+  COLOR_WARNING_BORDER = $0051FFE7;
+  COLOR_WARNING_TEXT = $00272727;
+
+  COLOR_INFO_BG = $00F24501;
+  COLOR_INFO_BORDER = $DBEAFE;
+  COLOR_INFO_TEXT = $00F5F1ED;
+
+implementation
+
+end.
