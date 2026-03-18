@@ -6,6 +6,11 @@
 
 O **FluiToast4D** é um componente moderno e altamente customizável para exibição de notificações (Toasts) não intrusivas no Delphi. Projetado para oferecer uma experiência de usuário rica, ele permite tanto o uso no padrão visual (Design-Time via *Object Inspector*) quanto o uso via código através de uma poderosa e limpa **Interface Fluente (Fluent API)**.
 
+<div align="center">
+  <img src="assets/demostration.gif" alt="Checkmark" width="700">
+</div>
+
+
 ## ✨ Características e Recursos
 
 - **Design Moderno:** Renderização suavizada com GDI+ e cantos perfeitamente arredondados.
