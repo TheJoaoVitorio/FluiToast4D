@@ -3,7 +3,7 @@ unit FluiToast.Types;
 interface
 
 uses
-  System.UITypes, System.Classes, Vcl.Graphics;
+  System.UITypes, System.Classes, Vcl.Graphics, Vcl.ExtCtrls, Vcl.Imaging.pngimage, Vcl.Imaging.jpeg;
 
 type
   TFluiToastType = (ftCustom, ftInfo, ftSuccess, ftWarning, ftError);
@@ -34,6 +34,8 @@ type
     function BorderColor(const AValue: TColor): IFluiToast;
     function FontName(const AValue: string): IFluiToast;
     function Rounding(const AValue: Integer): IFluiToast;
+    function Image(const AValue: TImage): IFluiToast; overload;
+    function Image(const AValue: TPicture): IFluiToast; overload;
     function Clone: IFluiToast;
     procedure Show;
   end;

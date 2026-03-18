@@ -3,8 +3,20 @@ unit UFormDemo;
 interface
 
 uses
+  System.TypInfo,
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, FluiToast, FluiToast.Types;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, FluiToast, FluiToast.Types,
+  Vcl.ExtCtrls, Vcl.Imaging.pngimage, Vcl.ComCtrls, Vcl.ActnMan,
+  Vcl.ActnColorMaps;
+
+type
+  TEnumHelper = class
+  public
+    class function StringToEnum<T>(const AName: string; const ADefault: T): T; static;
+  end;
+
+{ TEnumHelper }
+
 
 type
   TFormDemo = class(TForm)
@@ -13,14 +25,48 @@ type
     btnInfo: TButton;
     btnWarning: TButton;
     btnFluent: TButton;
+    btnCustom: TButton;
+    btnShowToast: TButton;
     FluiToast1: TFluiToast;
-    Button1: TButton;
+    lbTitleSettings: TLabel;
+    tbarRounding: TTrackBar;
+    lbTitleRounding: TLabel;
+    lbTitleDuration: TLabel;
+    tbarDuration: TTrackBar;
+    edtDurationValue: TLabeledEdit;
+    rboxPosition: TRadioGroup;
+    lbTitlePosition: TLabel;
+    pnImgForToast: TPanel;
+    lbTitleIcon: TLabel;
+    imgForToast: TImage;
+    lbDescriptionIcon: TLabel;
+    imgFlui: TImage;
+    lbTitleSelectImage: TLabel;
+    edtTitle: TLabeledEdit;
+    edtMessage: TLabeledEdit;
+    cboxColorTitle: TColorBox;
+    Label1: TLabel;
+    Label2: TLabel;
+    cboxColorMessage: TColorBox;
+    rboxType: TRadioGroup;
+    Label3: TLabel;
+    Label4: TLabel;
+    cboxColorBackground: TColorBox;
+    cboxColorBorderColor: TColorBox;
+    Label5: TLabel;
+    fileOdlgImage: TFileOpenDialog;
     procedure btnSuccessClick(Sender: TObject);
     procedure btnErrorClick(Sender: TObject);
     procedure btnInfoClick(Sender: TObject);
     procedure btnWarningClick(Sender: TObject);
     procedure btnFluentClick(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
+    procedure btnCustomClick(Sender: TObject);
+    procedure btnShowToastClick(Sender: TObject);
+    procedure tbarRoundingChange(Sender: TObject);
+    procedure tbarDurationChange(Sender: TObject);
+    procedure edtDurationValueChange(Sender: TObject);
+    procedure imgForToastClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
   public
@@ -34,12 +80,58 @@ implementation
 
 {$R *.dfm}
 
-procedure TFormDemo.btnSuccessClick(Sender: TObject);
+class function TEnumHelper.StringToEnum<T>(const AName: string; const ADefault: T): T;
+var
+  I: Integer;
+  PInfo: PTypeInfo;
 begin
+  PInfo := TypeInfo(T);
+
+  I := GetEnumValue(PInfo, AName);
+
+  if I <> -1 then
+    Move(I, Result, SizeOf(T))
+  else
+    Result := ADefault;
+end;
+
+procedure TFormDemo.FormCreate(Sender: TObject);
+begin
+
+  with fileOdlgImage do
+  begin
+    FileTypes.Clear;
+
+    with FileTypes.Add do
+    begin
+      DisplayName := 'Imagens';
+      FileMask := '*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.tif;*.tiff';
+    end;
+
+    DefaultExtension := 'jpg';
+  end;
+
+end;
+
+procedure TFormDemo.btnSuccessClick(Sender: TObject);
+var
+  Picture: TPicture;
+  Image: TImage;
+  PathAssets: String;
+begin
+  PathAssets := ExtractFilePath(ParamStr(0)) + 'assets' + PathDelim;
+
+  Image   := TImage.Create(nil);
+  Picture := TPicture.Create;
+
+  Picture.LoadFromFile(PathAssets + '1Checkmark_32px.png');
+  Image.Picture.Assign(Picture);
+
   TFluiToast.New
-            .Title('Title')
-            .Message('Message')
+            .Title('Salvo com exito')
+            .Message('Nota fiscal eletronica salva com sucesso!')
             .Duration(3500)
+            .Image(Image)
             .ToastType(ftSuccess)
             .OnClick(procedure
              begin
@@ -54,6 +146,7 @@ begin
             .Title('Error')
             .Message('Error ao executar.')
             .Duration(3500)
+            .BorderColor(clGray)
             .ToastType(ftError)
             .OnClick(procedure
              begin
@@ -90,7 +183,7 @@ begin
             .Show;
 end;
 
-procedure TFormDemo.Button1Click(Sender: TObject);
+procedure TFormDemo.btnCustomClick(Sender: TObject);
 begin
   TFluiToast.New
             .Title('Título Customizado')
@@ -117,5 +210,71 @@ begin
              end)
             .Show;
 end;
+
+
+
+procedure TFormDemo.btnShowToastClick(Sender: TObject);
+var
+  SelectedTypeName: String;
+  ToastType: TFluiToastType;
+  ToastPosition : TFluiToastPosition;
+begin
+
+  // Type string to Toast
+  SelectedTypeName := rboxType.Items[rboxType.ItemIndex];
+  ToastType := TEnumHelper.StringToEnum<TFluiToastType>(SelectedTypeName, ftCustom);
+
+
+  // Position Toast
+  ToastPosition := TEnumHelper.StringToEnum<TFluiToastPosition>(
+    rboxPosition.Items[rboxPosition.ItemIndex],
+    ftpBottomRight
+  );
+
+
+  // Show New Toast
+  FluiToast1.New
+            .BackgroundColor(cboxColorBackground.Selected)
+            .BorderColor(cboxColorBorderColor.Selected)
+            .Image(imgForToast.Picture)
+            .Title(edtTitle.Text)
+            .TitleColor(cboxColorTitle.Selected)
+            .Message(edtMessage.Text)
+            .MessageColor(cboxColorMessage.Selected)
+            .Duration(tbarDuration.Position)
+            .Rounding(tbarRounding.Position)
+            .Position(ToastPosition)
+            .ToastType(ToastType)
+            .Show;
+end;
+
+
+
+
+
+
+procedure TFormDemo.edtDurationValueChange(Sender: TObject);
+begin
+  tbarDuration.Position := StrToInt(edtDurationValue.Text);
+end;
+
+procedure TFormDemo.imgForToastClick(Sender: TObject);
+begin
+  fileOdlgImage.Execute;
+
+  imgForToast.Picture.LoadFromFile( fileOdlgImage.FileName );
+end;
+
+procedure TFormDemo.tbarRoundingChange(Sender: TObject);
+begin
+  lbTitleRounding.Caption := 'Rounding: ' + tbarRounding.Position.ToString;
+end;
+
+procedure TFormDemo.tbarDurationChange(Sender: TObject);
+begin
+  lbTitleDuration.Caption := 'Duration: ' + tbarDuration.Position.ToString;
+  edtDurationValue.Text := tbarDuration.Position.ToString;
+end;
+
 
 end.

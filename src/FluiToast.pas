@@ -3,7 +3,8 @@ unit FluiToast;
 interface
 
 uses
-  System.Classes, Vcl.Graphics, FluiToast.Types, FluiToast.View, FluiToast.Manager;
+  System.Classes, Vcl.Graphics, FluiToast.Types, FluiToast.View, FluiToast.Manager,
+  Vcl.ExtCtrls, Vcl.Imaging.pngimage, Vcl.Imaging.jpeg;
 
 type
   [ComponentPlatformsAttribute(pidWin32 or pidWin64)]
@@ -21,7 +22,13 @@ type
     FMessageColor: TColor;
     FBorderColor: TColor;
     FFontName: string;
-  protected
+    FImage: TPicture;
+    procedure SetImage(const Value: TPicture);
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    class function New: IFluiToast;
+    
     function Title(const AValue: string): IFluiToast;
     function Message(const AValue: string): IFluiToast;
     function ToastType(const AValue: TFluiToastType): IFluiToast;
@@ -34,11 +41,10 @@ type
     function BorderColor(const AValue: TColor): IFluiToast;
     function FontName(const AValue: string): IFluiToast;
     function Rounding(const AValue: Integer): IFluiToast;
+    function Image(const AValue: TImage): IFluiToast; overload;
+    function Image(const AValue: TPicture): IFluiToast; overload;
     function Clone: IFluiToast;
     procedure Show;
-  public
-    constructor Create(AOwner: TComponent); override;
-    class function New: IFluiToast;
   published
     property DefaultTitle: string read FTitle write FTitle;
     property DefaultMessage: string read FMessage write FMessage;
@@ -51,6 +57,7 @@ type
     property DefaultMessageColor: TColor read FMessageColor write FMessageColor default COLOR_TEXT_MESSAGE;
     property DefaultBorderColor: TColor read FBorderColor write FBorderColor default COLOR_BORDER_DEFAULT;
     property DefaultFontName: string read FFontName write FFontName;
+    property DefaultImage: TPicture read FImage write SetImage;
   end;
 
 implementation
@@ -69,6 +76,18 @@ begin
   FMessageColor := COLOR_TEXT_MESSAGE;
   FBorderColor := COLOR_BORDER_DEFAULT;
   FFontName := 'Inter';
+  FImage := TPicture.Create;
+end;
+
+destructor TFluiToast.Destroy;
+begin
+  FImage.Free;
+  inherited;
+end;
+
+procedure TFluiToast.SetImage(const Value: TPicture);
+begin
+  FImage.Assign(Value);
 end;
 
 function TFluiToast.BackgroundColor(const AValue: TColor): IFluiToast;
@@ -94,6 +113,24 @@ end;
 function TFluiToast.FontName(const AValue: string): IFluiToast;
 begin
   FFontName := AValue;
+  Result := Self;
+end;
+
+function TFluiToast.Image(const AValue: TImage): IFluiToast;
+begin
+  if Assigned(AValue) then
+    FImage.Assign(AValue.Picture)
+  else
+    FImage.Assign(nil);
+  Result := Self;
+end;
+
+function TFluiToast.Image(const AValue: TPicture): IFluiToast;
+begin
+  if Assigned(AValue) then
+    FImage.Assign(AValue)
+  else
+    FImage.Assign(nil);
   Result := Self;
 end;
 
@@ -132,6 +169,8 @@ begin
   LClone.FMessageColor := Self.FMessageColor;
   LClone.FBorderColor := Self.FBorderColor;
   LClone.FFontName := Self.FFontName;
+  if Assigned(Self.FImage.Graphic) and not Self.FImage.Graphic.Empty then
+    LClone.FImage.Assign(Self.FImage);
   Result := LClone;
 end;
 
@@ -170,6 +209,8 @@ begin
   LView.MessageColor := FMessageColor;
   LView.BorderColor := FBorderColor;
   LView.FontName := FFontName;
+  if Assigned(FImage.Graphic) and not FImage.Graphic.Empty then
+    LView.Image.Assign(FImage);
   
   TFluiToastManager.GetInstance.ShowToast(LView, FPosition);
 end;

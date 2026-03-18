@@ -1,0 +1,21 @@
+package FluiToast4D;
+
+{$R *.res}
+{$IFDEF IMPLICITBUILDING $----}
+{$RUNONLY}
+{$ENDIF IMPLICITBUILDING}
+{$DESCRIPTION 'FluiToast4D - Modern Toasts for Delphi VCL'}
+{$IMPLICITBUILD ON}
+
+requires
+  vcl,
+  rtl;
+
+contains
+  FluiToast in 'src\FluiToast.pas',
+  FluiToast.Types in 'src\FluiToast.Types.pas',
+  FluiToast.View in 'src\FluiToast.View.pas',
+  FluiToast.Manager in 'src\FluiToast.Manager.pas',
+  FluiToast.Register in 'src\FluiToast.Register.pas';
+
+end.
