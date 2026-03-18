@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.ExtCtrls, FluiToast.Types;
+  Vcl.Controls, Vcl.ExtCtrls, FluiToast.Types, Vcl.Imaging.pngimage, Vcl.Imaging.jpeg;
 
 type
   TFluiToastView = class(TCustomControl)
@@ -23,6 +23,8 @@ type
     FRounding: Integer;
     FFontName: string;
     FAlpha: Byte;
+    FImage: TPicture;
+    procedure SetImage(const Value: TPicture);
     procedure OnTimer(Sender: TObject);
     procedure DoClose;
     procedure ApplyTheme;
@@ -31,6 +33,7 @@ type
     procedure Click; override;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure ShowToast;
     property OnClose: TNotifyEvent read FOnClose write FOnClose;
     property Title: string read FTitle write FTitle;
@@ -44,6 +47,7 @@ type
     property BorderColor: TColor read FBorderColor write FBorderColor;
     property Rounding: Integer read FRounding write FRounding;
     property FontName: string read FFontName write FFontName;
+    property Image: TPicture read FImage write SetImage;
   end;
 
 implementation
@@ -72,6 +76,19 @@ begin
   FTimer := TTimer.Create(Self);
   FTimer.Enabled := False;
   FTimer.OnTimer := OnTimer;
+  
+  FImage := TPicture.Create;
+end;
+
+destructor TFluiToastView.Destroy;
+begin
+  FImage.Free;
+  inherited;
+end;
+
+procedure TFluiToastView.SetImage(const Value: TPicture);
+begin
+  FImage.Assign(Value);
 end;
 
 procedure TFluiToastView.Click;
@@ -102,6 +119,8 @@ var
   LBrush: TGPSolidBrush;
   LPen: TGPPen;
   LRound: Single;
+  LImgRect: TRect;
+  LTextOffset: Integer;
 
   function GetTGPColor(AColor: TColor; AAlpha: Byte = 255): TGPColor;
   var
@@ -151,6 +170,15 @@ begin
     LGraphics.Free;
   end;
 
+  LTextOffset := 16;
+
+  if Assigned(FImage.Graphic) and not FImage.Graphic.Empty then
+  begin
+    LImgRect := Rect(16, (Height - 32) div 2, 16 + 32, ((Height - 32) div 2) + 32);
+    Canvas.StretchDraw(LImgRect, FImage.Graphic);
+    LTextOffset := LTextOffset + 32 + 12;
+  end;
+
   // Title
   Canvas.Font.Name := FFontName;
   Canvas.Font.Size := 10;
@@ -159,7 +187,11 @@ begin
   Canvas.Brush.Style := bsClear;
   
   LRect := ClientRect;
-  LRect.Inflate(-16, -12);
+  LRect.Left := LTextOffset;
+  LRect.Top := 12;
+  LRect.Right := LRect.Right - 16;
+  LRect.Bottom := LRect.Bottom - 12;
+  
   Canvas.TextRect(LRect, FTitle, [tfLeft, tfTop, tfSingleLine, tfEndEllipsis]);
 
   // Menssage
