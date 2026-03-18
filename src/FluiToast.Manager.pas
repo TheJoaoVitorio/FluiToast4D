@@ -65,10 +65,10 @@ var
   I: Integer;
   LView: TFluiToastView;
   LPos: TFluiToastPosition;
-  LCounts: array[TFluiToastPosition] of Integer;
+  LTotalHeight: array[TFluiToastPosition] of Integer;
 begin
   for LPos := Low(TFluiToastPosition) to High(TFluiToastPosition) do
-    LCounts[LPos] := 0;
+    LTotalHeight[LPos] := 0;
 
   for I := 0 to FToasts.Count - 1 do
   begin
@@ -79,35 +79,35 @@ begin
       ftpTopRight:
       begin
         LView.Left := AParent.ClientWidth - LView.Width - 20;
-        LView.Top := 20 + (LCounts[LPos] * (LView.Height + 10));
+        LView.Top := 20 + LTotalHeight[LPos];
       end;
       ftpTopLeft:
       begin
         LView.Left := 20;
-        LView.Top := 20 + (LCounts[LPos] * (LView.Height + 10));
+        LView.Top := 20 + LTotalHeight[LPos];
       end;
       ftpBottomRight:
       begin
         LView.Left := AParent.ClientWidth - LView.Width - 20;
-        LView.Top := AParent.ClientHeight - LView.Height - 20 - (LCounts[LPos] * (LView.Height + 10));
+        LView.Top := AParent.ClientHeight - LView.Height - 20 - LTotalHeight[LPos];
       end;
       ftpBottomLeft:
       begin
         LView.Left := 20;
-        LView.Top := AParent.ClientHeight - LView.Height - 20 - (LCounts[LPos] * (LView.Height + 10));
+        LView.Top := AParent.ClientHeight - LView.Height - 20 - LTotalHeight[LPos];
       end;
       ftpTopCenter:
       begin
         LView.Left := (AParent.ClientWidth div 2) - (LView.Width div 2);
-        LView.Top := 20 + (LCounts[LPos] * (LView.Height + 10));
+        LView.Top := 20 + LTotalHeight[LPos];
       end;
       ftpBottomCenter:
       begin
         LView.Left := (AParent.ClientWidth div 2) - (LView.Width div 2);
-        LView.Top := AParent.ClientHeight - LView.Height - 20 - (LCounts[LPos] * (LView.Height + 10));
+        LView.Top := AParent.ClientHeight - LView.Height - 20 - LTotalHeight[LPos];
       end;
     end;
-    Inc(LCounts[LPos]);
+    LTotalHeight[LPos] := LTotalHeight[LPos] + LView.Height + 10;
   end;
 end;
 
@@ -128,8 +128,8 @@ begin
   FToasts.Add(AView);
   FPositions.Add(AView, APosition);
   
-  RepositionToasts(LActiveForm);
   AView.ShowToast;
+  RepositionToasts(LActiveForm);
 end;
 
 initialization
