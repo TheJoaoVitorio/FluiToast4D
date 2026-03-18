@@ -221,7 +221,7 @@ begin
   
   HandleNeeded;
   LTextOffset := 16;
-  if Assigned(FImage.Graphic) and not FImage.Graphic.Empty then
+  if Assigned(FImage.Picture.Graphic) and not FImage.Picture.Graphic.Empty then
     LTextOffset := LTextOffset + 32 + 12;
 
   Canvas.Font.Name := FFontName;

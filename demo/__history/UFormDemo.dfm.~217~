@@ -12,6 +12,7 @@ object FormDemo: TFormDemo
   Font.Style = []
   OldCreateOrder = True
   Position = poMainFormCenter
+  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 15
   object lbTitleSettings: TLabel
@@ -3035,7 +3036,7 @@ object FormDemo: TFormDemo
     Proportional = True
   end
   object lbTitleSelectImage: TLabel
-    Left = 464
+    Left = 456
     Top = 149
     Width = 73
     Height = 24
@@ -3183,6 +3184,7 @@ object FormDemo: TFormDemo
     Width = 150
     Height = 45
     Max = 50
+    Min = 1
     Position = 38
     TabOrder = 7
     ThumbLength = 15
@@ -3194,6 +3196,7 @@ object FormDemo: TFormDemo
     Width = 150
     Height = 45
     Max = 9999
+    Min = 1
     Position = 3000
     TabOrder = 8
     ThumbLength = 15
@@ -3248,7 +3251,7 @@ object FormDemo: TFormDemo
     BevelInner = bvLowered
     BiDiMode = bdRightToLeftReadingOnly
     BorderWidth = 1
-    Color = clInactiveBorder
+    Color = clInfoText
     ParentBiDiMode = False
     ParentBackground = False
     TabOrder = 11
@@ -3281,6 +3284,7 @@ object FormDemo: TFormDemo
         E313140700E31514A7ABE8E4F130607A593DB81C30E051305060C01D0000D184
         9B217184D3BD0000000049454E44AE426082}
       Proportional = True
+      OnClick = imgForToastClick
       ExplicitLeft = -33
       ExplicitTop = 15
       ExplicitWidth = 48
@@ -3368,6 +3372,8 @@ object FormDemo: TFormDemo
     Top = 222
     Width = 98
     Height = 22
+    DefaultColorColor = clSilver
+    NoneColorColor = clSilver
     Selected = clSilver
     Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbCustomColors]
     DropDownCount = 10
@@ -3437,5 +3443,12 @@ object FormDemo: TFormDemo
       44AE426082}
     Left = 664
     Top = 40
+  end
+  object fileOdlgImage: TFileOpenDialog
+    FavoriteLinks = <>
+    FileTypes = <>
+    Options = []
+    Left = 528
+    Top = 112
   end
 end
